@@ -2,7 +2,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 FROM debian:stable-slim
 
 # Launch using this command to have it automatically pick up local AWS CLI and SSH credentials
-# docker run -it -v ~/.aws:/root/.aws -v ~/.ssh:/root/.ssh <CONTAINER_IMAGE_NAME>
+# docker run -it -v $HOME/.aws:/root/.aws:ro -v $HOME/.ssh:/root/.ssh:ro <CONTAINER_IMAGE_NAME>
 # Install dependencies and cleanup afterward
 RUN apt update && \
     apt upgrade -y && \
