@@ -96,7 +96,6 @@ The example above would check if a file called /etc/passwd was present every 2s 
   "live-restore": true
 }
 ```
-## PROMETHEUS FOR DOCKER:  https://docs.docker.com/engine/daemon/prometheus/
 
 - looks to be quite a few ways to get logs from docker, method is called a logging driver and there is a bunch for different providers like cloudwatch and fluentd
 
@@ -182,4 +181,15 @@ To view metrics, navigate to http://localhost:3100/metrics.
 To view Grafana webui, navigate to http://127.0.0.1:3000 
 
 - If you run into issues with docker not letting you kill containers, run the command `aa-remove-unknown` to prevent linux apparmor from messing with it
+- From reading the config files baked into the docker compose for Loki, Loki out of the box is only configured to monitor `/var/logs` and metrics from the underlying docker host
+
+ok so that is loki up and running, how to actually tie it into stuff though?  getting container performance metrics and logs and scraping them
+
+does loki have a volume configured it dumps into? not in the compose file it doesn't
+
+I suppose I could set up a new docker container outside of the docker compose for loki, attach it to the same network bridge though
+so they can communicate, but then i need a way the container will expose it's logs.  needs to be a docker volume
+so the net new container will have a docker volume for it's logs that are mapped to the underlying docker host somwehere
+and then you change that promtail config.yml file 
+
 
