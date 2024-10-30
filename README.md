@@ -294,5 +294,5 @@ INSERT DOCKER COMPOSE EXAMPLE OF SIDECAR HERE
 - docker compose entry for promtail container that uses volume mount to point promtail to a config file available locally on the docker host
 - config file for promtail to be added to git repo and cloned to docker host and location updated in the above
 
-For extra credit you can massage the promtail container above to have an environment variable for Loki URL instead of having it hardcoded in the promtail config file.  Would need to have some sort of code in the promtail dockerfile that reads from a loki url env variable and replaces the loki url in the 
+For extra credit you can massage the promtail container above to have an environment variable for Loki URL instead of having it hardcoded in the promtail config file.  Need to have some sort of code in the promtail dockerfile that reads from a loki url env variable and replaces the loki url in the 
 promtail config file.
