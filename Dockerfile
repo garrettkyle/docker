@@ -26,7 +26,9 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
     unzip awscliv2.zip && \
     ./aws/install && \
     rm -f awscliv2.zip && \
-    apt autoremove && apt clean
+    apt autoremove && \
+    apt clean && \
+    rm -rf /aws
 #EXPOSE 80/tcp
 #ENV MY_NAME="John Doe"
 VOLUME ["/data"]

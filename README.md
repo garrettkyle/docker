@@ -140,6 +140,6 @@ HEALTHCHECK --interval=5m --timeout=3s \
 ```
 
 - To build the image you use `docker build` command 
-- An example, given that the `Dockerfile` is in the same directory you run this command from `docker build -t myapp:1.0 .`
-
-- `docker build -t devops:1.0 .` and then `docker run -itd devops:1.0` to launch it then `docker exec-it <CONTAINERID_OR_NAME> /bin/bash`
+- An example, given that the `Dockerfile` is in the same directory you run this command from `docker build -t devops:1.0 .`
+- Once the container has been built, you can check the size of the layers via `docker history <CONTAINERIMAGE>`
+- Provided you have configured aws cli creds on your local, you can run the command `docker run -it -v ~/.aws:/root/.aws <DOCKER_IMAGE> and it will automatically pass your aws cli creds to the docker image
