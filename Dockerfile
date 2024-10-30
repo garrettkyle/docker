@@ -4,7 +4,7 @@ FROM alpine:latest
 # docker run -it -v $HOME/.aws:/root/.aws:ro -v $HOME/.ssh:/root/.ssh:ro <CONTAINER_IMAGE_NAME>
 RUN apk update && \
     apk add --update --no-cache \
-    bash curl git jq \
+    bash curl git jq openssh-client \
     python3 zip unzip wget vim \
     openssl ca-certificates aws-cli
 
@@ -15,5 +15,4 @@ RUN git clone --depth=1 https://github.com/tfutils/tfenv.git ~/.tfenv && \
 RUN tfenv install latest && \
     tfenv use latest
 
-VOLUME ["/data"]
-WORKDIR /workdir
+WORKDIR /git
