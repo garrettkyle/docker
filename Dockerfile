@@ -1,6 +1,8 @@
 ARG DEBIAN_FRONTEND=noninteractive
 FROM debian:stable
 
+# Launch using this command to have it automatically pick up local AWS CLI and SSH credentials
+# docker run -it -v ~/.aws:/root/.aws -v ~/.ssh:/root/.ssh <CONTAINER_IMAGE_NAME>
 # Install dependencies and cleanup afterward
 RUN apt update && \
     apt upgrade -y && \
@@ -28,7 +30,8 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
     rm -f awscliv2.zip && \
     apt autoremove && \
     apt clean && \
-    rm -rf /aws
+    rm -rf /aws && \
+    mkdir /git
 #EXPOSE 80/tcp
 #ENV MY_NAME="John Doe"
 VOLUME ["/data"]
