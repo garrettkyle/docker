@@ -144,3 +144,42 @@ HEALTHCHECK --interval=5m --timeout=3s \
 - Once the container has been built, you can check the size of the layers via `docker history <CONTAINERIMAGE>`
 - Provided you have configured aws cli creds on your local, you can run the command `docker run -it -v ~/.aws:/root/.aws <DOCKER_IMAGE>` and it will automatically pass your aws cli creds to the docker image
 - If you run the command `docker run -it -v $HOME/.aws:/root/.aws:ro -v $HOME/.ssh:/root/.ssh:ro devops:1.0` it will actually map in your ssh keys too
+- To use the github container registry you first need to create a personal access token (PAT) and give it `read:packages`, `write:packages`, `delete:packages` and `repo` permissions
+- Login to github container registry via the following command: `echo "<YOUR_TOKEN>" | docker login ghcr.io -u <GITHUB_USERNAME> --password-stdin`
+- Once logged in, the command to build the container with proper image tags is: `docker build -t ghcr.io/<GITHUB_USERNAME>/<IMAGE_NAME>:<TAG>`
+- Push the built image to GHCR via the following command: `docker push ghcr.io/<GITHUB_USERNAME>/<IMAGE_NAME>:<TAG>`
+
+# Docker-Compose
+
+- Default path for a compose file is `compose.yaml`
+```
+x-env: &env
+  environment:
+    - CONFIG_KEY
+    - EXAMPLE_KEY
+ 
+services:
+  first:
+    <<: *env
+    image: my-image:latest
+  second:
+    <<: *env
+    image: another-image:latest
+```
+The example above shows how you can use extensions to declare env variables and then have them be passed down to however many containers instead of declaring them per-container
+- To start all the services in your `compose.yaml` file the command is `docker compose up`
+- To stop all the services in your `compose.yaml` file the command is `docker compose down`
+- To view logs the command is 'docker compose logs'
+- To list all services with their current status it's: `docker compose ps`
+
+## Grafana Loki
+
+`wget https://raw.githubusercontent.com/grafana/loki/v3.0.0/production/docker-compose.yaml -O compose.yaml`
+`docker compose -f compose.yaml up -d`
+
+To view readiness, navigate to http://localhost:3100/ready.
+To view metrics, navigate to http://localhost:3100/metrics.
+To view Grafana webui, navigate to http://127.0.0.1:3000 
+
+- If you run into issues with docker not letting you kill containers, run the command `aa-remove-unknown` to prevent linux apparmor from messing with it
+
