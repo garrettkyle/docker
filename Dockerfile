@@ -1,38 +1,24 @@
-ARG DEBIAN_FRONTEND=noninteractive
-FROM debian:stable-slim
+FROM alpine:latest
 
 # Launch using this command to have it automatically pick up local AWS CLI and SSH credentials
 # docker run -it -v $HOME/.aws:/root/.aws:ro -v $HOME/.ssh:/root/.ssh:ro <CONTAINER_IMAGE_NAME>
-# Install dependencies and cleanup afterward
-RUN apt update && \
-    apt upgrade -y && \
-    apt-get install -y \
-    curl \
-    git \
-    wget \
-    gpg \
-    unzip \
-    apt-transport-https \
-    ca-certificates \
-    software-properties-common && \
-    # Clean up APT when done to reduce image size
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-# Install terraform
-RUN wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg && \
-    echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
-RUN apt update && \
-    apt install terraform -y
-# Install AWS CLI
+RUN apk update && \
+    apk add --update --no-cache \
+    bash curl git jq \
+    python3 zip unzip wget vim \
+    openssl ca-certificates aws-cli
+
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
     unzip awscliv2.zip && \
     ./aws/install && \
-    rm -f awscliv2.zip && \
-    apt autoremove && \
-    apt clean && \
-    rm -rf /aws && \
-    mkdir /git
-#EXPOSE 80/tcp
-#ENV MY_NAME="John Doe"
+    rm -rf /aws
+
+RUN git clone --depth=1 https://github.com/tfutils/tfenv.git ~/.tfenv && \
+    ln -s ~/.tfenv/bin/* /usr/local/bin
+
+# Install terraform
+RUN tfenv install latest && \
+    tfenv use latest
+
 VOLUME ["/data"]
 WORKDIR /workdir
