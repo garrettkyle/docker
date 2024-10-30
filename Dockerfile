@@ -24,7 +24,9 @@ RUN apt update && \
 # Install AWS CLI
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
     unzip awscliv2.zip && \
-    ./aws/install
+    ./aws/install && \
+    rm -f awscliv2.zip && \
+    apt autoremove && apt clean
 #EXPOSE 80/tcp
 #ENV MY_NAME="John Doe"
 VOLUME ["/data"]
