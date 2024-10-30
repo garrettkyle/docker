@@ -1,5 +1,5 @@
 ARG DEBIAN_FRONTEND=noninteractive
-FROM debian:stable
+FROM debian:stable-slim
 
 # Launch using this command to have it automatically pick up local AWS CLI and SSH credentials
 # docker run -it -v ~/.aws:/root/.aws -v ~/.ssh:/root/.ssh <CONTAINER_IMAGE_NAME>
