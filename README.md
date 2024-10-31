@@ -259,6 +259,7 @@ or maybe you don't even look at loki for that,  loki is just the backend for it 
 yep that is the case.  in grafana you go into Explore option in the middle left and then use the query thing to query for the given job. was able to see
 the localhost logs there and they were correct
 
+Default URL for the compose file being used for Grafana/Loki is `http://localhost:3000/login` and default creds are username: `admin` password: `admin`
 
 ## Sidecar Container Logging
 
