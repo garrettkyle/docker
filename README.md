@@ -190,7 +190,7 @@ To view readiness, navigate to http://localhost:3100/ready
 To view metrics, navigate to http://localhost:3100/metrics
 To view Grafana webui, navigate to http://127.0.0.1:3000 
 
-- If you run into issues with docker not letting you kill containers, run the command `aa-remove-unknown` to prevent linux apparmor from messing with it
+- If you run into issues with docker not letting you kill containers, run the command `aa-remove-unknown` to fix it and prevent linux apparmor from messing with it
 - Loki out of the box is only configured to monitor `/var/logs` from the underlying docker host the container is run on
 - Loki by default uses promtail to scrape logs
 
@@ -266,33 +266,53 @@ the localhost logs there and they were correct
 - Boils down to having a docker compose file wrapper around your given application/whatever container and mapping a docker volume to not only `/var/logs` but also another volume for any `/path/to/application/logs` folders you wish
 - You also add another container to that docker compose file that is running promtail and you point the promtail config at the docker volume(s) that are being scraped from the primary container.  Via the promtail config file you can point to the given Loki URL
 
-Use something similar to create the required promtail sidecar container:
+Use something similar to this to create the required promtail sidecar container:
 ```
-# Use Alpine as the base image
 FROM alpine:latest
 
-# Install necessary packages and Promtail
-RUN apk add --no-cache curl bash \
-    && curl -L -o /usr/local/bin/promtail https://github.com/grafana/loki/releases/latest/download/promtail-linux-amd64 \
-    && chmod +x /usr/local/bin/promtail
+WORKDIR /git
 
-# Copy the Promtail configuration file
+RUN apk update \
+    && apk add --update --no-cache \
+    loki-promtail git openssh-client
+
 COPY promtail.yaml /etc/promtail/promtail.yaml
 
-# Command to run Promtail
 CMD ["promtail", "-config.file=/etc/promtail/promtail.yaml"]
 ```
-Might need some tweaking on the dockerfile above after testing.
+- Did a bunch of research and it seems that when it comes to passing in various files the "best" way is just to make them in during Docker build because you cannot pass files into a running container without a bind mount which is not ideal.  If you try to do it via git within the dockerfile itself then you are in a situation where you need to bake your git creds into the image.  "Best" way that was found was to leave the git steps out of the Dockerfile and then run them in the docker compose file after the fact.
+- Seems to make sense to have a git repo for config_files and put your various config files in there, separated by folder structure
 
-- The requirement to have custom promtail config yaml files necessitates having a method to track them, the best I can think of is to have them in a separate config file git repo with a folder structure to keep them separated.  This repo needs to be cloned to the docker host machine so that docker compose files can reference it for promtail and other config files.
-- Ideally you have some sort of GHA or cron job that automatically clones the config file repo to the docker host on a scheduled basis
-- Through creative use of volume mounts similar to the Docker examples above, you can automatically pass through credentials for AWS CLI or SSH
+Here is a working compose file that shows the sidecar container working in practice:
 
-INSERT DOCKER COMPOSE EXAMPLE OF SIDECAR HERE
-- docker compose wrapper of container
-- volume mounts to make `/var/logs` and `/path/to/application/logs` available for promtail container to see
-- docker compose entry for promtail container that uses volume mount to point promtail to a config file available locally on the docker host
-- config file for promtail to be added to git repo and cloned to docker host and location updated in the above
+```
+services:
+  alpine:
+    image: alpine:latest
+    volumes:
+      - alpine_logs:/var/log
+    command: >
+      sh -c "while true; do echo 'Logging to /var/log/example.log'; sleep 5; done"
 
-For extra credit you can massage the promtail container above to have an environment variable for Loki URL instead of having it hardcoded in the promtail config file.  Need to have some sort of code in the promtail dockerfile that reads from a loki url env variable and replaces the loki url in the 
-promtail config file.
+  promtail:
+    image: sidecar_container:1.0
+    volumes:
+      - alpine_logs:/var/log/alpine_logs
+      - $HOME/.aws:/root/.aws:ro
+      - $HOME/.ssh:/root/.ssh:ro
+    entrypoint: >
+      sh -c "git init -b main config_files \
+      && cd config_files \
+      && git config core.sparseCheckout true \
+      && echo 'promtail/promtail.yaml' >> .git/info/sparse-checkout \
+      && git remote add origin git@github.com:garrettkyle/config_files.git \
+      && git pull origin main \
+      && promtail -config.file=/etc/promtail/promtail.yaml"
+    ports:
+      - "9080:9080"
+
+volumes:
+  alpine_logs:
+```
+
+To massage the above example to work for an existing container make sure the target container is is exposing docker volumes for the required logs directories as required and update the compose file to reflect that.  Can adjust the `alpine_logs` volume name to suit, but be sure to find+replace to make the change in all necessary places.

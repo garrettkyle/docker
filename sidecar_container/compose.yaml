@@ -1,0 +1,27 @@
+services:
+  alpine:
+    image: alpine:latest
+    volumes:
+      - alpine_logs:/var/log
+    command: >
+      sh -c "while true; do echo 'Logging to /var/log/example.log'; sleep 5; done"
+
+  promtail:
+    image: sidecar_container:1.0
+    volumes:
+      - alpine_logs:/var/log/alpine_logs
+      - $HOME/.aws:/root/.aws:ro
+      - $HOME/.ssh:/root/.ssh:ro
+    entrypoint: >
+      sh -c "git init -b main config_files \
+      && cd config_files \
+      && git config core.sparseCheckout true \
+      && echo 'promtail/promtail.yaml' >> .git/info/sparse-checkout \
+      && git remote add origin git@github.com:garrettkyle/config_files.git \
+      && git pull origin main \
+      && promtail -config.file=/etc/promtail/promtail.yaml"
+    ports:
+      - "9080:9080"
+
+volumes:
+  alpine_logs:
