@@ -315,4 +315,4 @@ volumes:
   alpine_logs:
 ```
 
-To massage the above example to work for an existing container make sure the target container is is exposing docker volumes for the required logs directories as required and update the compose file to reflect that.  Can adjust the `alpine_logs` volume name to suit, but be sure to find+replace to make the change in all necessary places.
+To massage the above example to work for an existing container make sure the target container is is exposing docker volumes for the required logs directories as required and update the compose file to reflect that.  Can adjust the `alpine_logs` volume name to suit, but be sure to find+replace to make the change in all necessary places.  Change the git repo link to point to your target repo and adjust the `echo 'promtail/promtail.yaml` part of the promtail params to the given location of the promtail.yaml file in your repo.
