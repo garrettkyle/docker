@@ -6,7 +6,9 @@ services:
     image: grafana/loki:2.9.2
     ports:
       - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
+    entrypoint: >
+      sh -c "echo -e "\nlimits_config:\n  volume_enabled: true" >> /etc/loki/local-config.yaml \
+      && loki -config.file=/etc/loki/local-config.yaml"
     networks:
       - loki
 
