@@ -16,3 +16,4 @@ scrape_configs:
     labels:
       job: alpine_logs
       __path__: /var/log/alpine_logs/*log
+      host: '{{ env "HOSTNAME" }}'
