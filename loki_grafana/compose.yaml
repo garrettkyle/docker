@@ -3,12 +3,12 @@ networks:
 
 services:
   loki:
-    image: grafana/loki:2.9.2
+    image: ghcr.io/garrettkyle/loki:1.0
     ports:
       - "3100:3100"
-    entrypoint: >
-      sh -c "echo -e "\nlimits_config:\n  volume_enabled: true" >> /etc/loki/local-config.yaml \
-      && loki -config.file=/etc/loki/local-config.yaml"
+    volumes:
+      - loki_data:/loki
+      - $HOME/.ssh:/root/.ssh:ro
     networks:
       - loki
 
@@ -49,3 +49,7 @@ services:
       - "3000:3000"
     networks:
       - loki
+
+volumes:
+  loki_data:
+    driver: local

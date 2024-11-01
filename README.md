@@ -150,7 +150,7 @@ HEALTHCHECK --interval=5m --timeout=3s \
 - Once the container has been built, you can check the size of the layers via `docker history <CONTAINERIMAGE>`
 - If you run the command `docker run -it -v $HOME/.aws:/root/.aws:ro -v $HOME/.ssh:/root/.ssh:ro <IMAGENAME>:<IMAGE_TAG> ` it will map your aws creds and ssh keys from your local machine into the target container
 
-## GiitHub Container Registry
+## GitHub Container Registry
 - To use the github container registry you first need to create a personal access token (PAT) and give it `read:packages`, `write:packages`, `delete:packages` and `repo` permissions
 - Login to github container registry via the following command: `echo "<YOUR_TOKEN>" | docker login ghcr.io -u <GITHUB_USERNAME> --password-stdin`
 - Once logged in, the command to build the container with proper image tags is: `docker build -t ghcr.io/<GITHUB_USERNAME>/<IMAGE_NAME>:<TAG>`
