@@ -1,0 +1,11 @@
+groups:
+  - name: cpu_high_usage_alert
+    rules:
+      - alert: HighCPUUsage
+        expr: avg(rate(cpu_usage_seconds_total[5m])) by (instance) > 0.9
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High CPU usage on instance {{ $labels.instance }}"
+          description: "CPU usage on instance {{ $labels.instance }} is over 90% for more than 5 minutes."

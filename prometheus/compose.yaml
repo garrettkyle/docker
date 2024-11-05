@@ -1,0 +1,55 @@
+networks:
+  monitoring:
+    driver: bridge
+
+volumes:
+  prometheus_data:
+
+services:
+
+  prometheus:
+    image: ghcr.io/garrettkyle/prometheus:1.0
+    container_name: prometheus
+    restart: unless-stopped
+    volumes:
+      - $HOME/.aws:/root/.aws:ro
+      - $HOME/.ssh:/root/.ssh:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+      - '--storage.tsdb.path=/prometheus'
+    expose:
+      - 9090
+    networks:
+      - monitoring
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    expose:
+      - 9100
+
+
+
+# NEED TO BUILD MY OWN ALERTMANAGER CONTAINER SO I CAN BAKE IN CONFIG FILE
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    volumes:
+      - ./alertmanager/:/etc/alertmanager/
+    networks:
+      - monitoring
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+      - '--storage.path=/alertmanager'
+    ports:
+      - 9093:9093
