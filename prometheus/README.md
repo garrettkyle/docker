@@ -46,4 +46,3 @@ scrape_configs:
 This scrape config file will tell Prometheus to scrape metrics from the localhost via `node_exporter` which would be running as a container on the same host as the Prometheus container and would be exposed on port `9100`.
 
 The scrape config file(s) is where you configure your targets to be scraped and via what mechanism.  You can also specify overrides for global parameter declared in the `prometheus.yaml` file `global:` section.
-
