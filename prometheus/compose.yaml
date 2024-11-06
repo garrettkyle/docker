@@ -8,7 +8,7 @@ volumes:
 services:
 
   prometheus:
-    image: ghcr.io/garrettkyle/prometheus:1.0
+    image: ghcr.io/garrettkyle/prometheus:1.4
     container_name: prometheus
     restart: unless-stopped
     volumes:
@@ -25,6 +25,7 @@ services:
 
   node-exporter:
     image: prom/node-exporter:latest
+    container_name: node-exporter
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -40,7 +41,8 @@ services:
       - monitoring
 
   alertmanager:
-    image: ghcr.io/garrettkyle/alertmanager:1.0
+    image: ghcr.io/garrettkyle/alertmanager:1.2
+    container_name: alertmanager
     volumes:
       - $HOME/.aws:/root/.aws:ro
       - $HOME/.ssh:/root/.ssh:ro
