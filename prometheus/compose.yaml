@@ -36,20 +36,19 @@ services:
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     expose:
       - 9100
-
-
-
-# NEED TO BUILD MY OWN ALERTMANAGER CONTAINER SO I CAN BAKE IN CONFIG FILE
-
-  alertmanager:
-    image: prom/alertmanager:latest
-    volumes:
-      - ./alertmanager/:/etc/alertmanager/
     networks:
       - monitoring
+
+  alertmanager:
+    image: ghcr.io/garrettkyle/alertmanager:1.0
+    volumes:
+      - $HOME/.aws:/root/.aws:ro
+      - $HOME/.ssh:/root/.ssh:ro
     restart: unless-stopped
     command:
-      - '--config.file=/etc/alertmanager/config.yml'
+      - '--config.file=/etc/alertmanager/alertmanager_config.yaml'
       - '--storage.path=/alertmanager'
     ports:
       - 9093:9093
+    networks:
+      - monitoring

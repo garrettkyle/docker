@@ -1,0 +1,29 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  # The root route is responsible for routing alerts to specific receivers
+  group_by: ['alertname']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 1h
+  receiver: 'default-receiver'
+
+receivers:
+  - name: 'default-receiver'
+    file_configs:
+     - path: '/var/log/alertmanager/alerts.log'
+
+# Optional: Configure alert silences
+# silences:
+#   - matchers:
+#       - name: 'severity'
+#         value: 'critical'
+#     startsAt: '2024-11-05T00:00:00Z'
+#     endsAt: '2024-11-05T12:00:00Z'
+
+web:
+  # HTTP service is enabled
+  http_listen_address: '0.0.0.0:9093'  # The interface and port to listen on for web UI
+  # The path to the web console (default is /)
+  #web_external_url: 'http://alertmanager.example.com:9093'  # The external URL for Alertmanager's web UI (optional)
