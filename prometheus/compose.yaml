@@ -8,13 +8,13 @@ volumes:
 services:
 
   prometheus:
-    image: ghcr.io/garrettkyle/prometheus:1.4
+    image: 715788907281.dkr.ecr.ca-central-1.amazonaws.com/monitoring/prometheus:1.0
     container_name: prometheus
-    restart: unless-stopped
     volumes:
       - $HOME/.aws:/root/.aws:ro
       - $HOME/.ssh:/root/.ssh:ro
       - prometheus_data:/prometheus
+    restart: unless-stopped
     command:
       - '--config.file=/etc/prometheus/prometheus.yaml'
       - '--storage.tsdb.path=/prometheus'
@@ -30,6 +30,7 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
+    restart: unless-stopped
     command:
       - '--path.procfs=/host/proc'
       - '--path.rootfs=/rootfs'
@@ -41,7 +42,7 @@ services:
       - monitoring
 
   alertmanager:
-    image: ghcr.io/garrettkyle/alertmanager:1.2
+    image: 715788907281.dkr.ecr.ca-central-1.amazonaws.com/monitoring/alertmanager:1.0
     container_name: alertmanager
     volumes:
       - $HOME/.aws:/root/.aws:ro
