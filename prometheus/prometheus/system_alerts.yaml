@@ -30,3 +30,13 @@ groups:
         annotations:
           summary: "Host unreachable: {{ $labels.instance }}"
           description: "Instance {{ $labels.instance }} is unreachable for the last 5 minutes."
+
+      # Low memory: Trigger an alert if available memory is less than 10% of total memory
+      - alert: LowMemory
+        expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 < 10
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low memory available on {{ $labels.instance }}"
+          description: "Less than 10% memory available on instance {{ $labels.instance }}. Available memory: {{ $value }} bytes."
