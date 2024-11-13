@@ -13,14 +13,10 @@ receivers:
     sns_configs:
       - api_url: 'https://sns.ca-central-1.amazonaws.com'
         topic_arn: 'arn:aws:sns:ca-central-1:715788907281:prometheus_alarms'
-        region: 'ca-central-1'
         sigv4:
           region: 'ca-central-1'
-        severity: 'critical'
         message: '{{ range .Alerts }}{{ .Annotations.summary }}\n{{ end }}'
         subject: 'Prometheus Alert: {{ .CommonLabels.alertname }}'
-        dedup_key: '{{ .CommonLabels.instance }}'
-        format: 'json'
 
 # Optional: Configure alert silences
 # silences:
