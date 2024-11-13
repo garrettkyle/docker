@@ -1,11 +1,32 @@
 groups:
-  - name: cpu_high_usage_alert
+  - name: node_alerts
     rules:
+      # High CPU usage: Trigger an alert if CPU usage exceeds 80% for 5 minutes
       - alert: HighCPUUsage
-        expr: avg(rate(cpu_usage_seconds_total[5m])) by (instance) > 0.9
+        expr: avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) by (instance) < 0.2
         for: 5m
         labels:
           severity: critical
         annotations:
-          summary: "High CPU usage on instance {{ $labels.instance }}"
-          description: "CPU usage on instance {{ $labels.instance }} is over 90% for more than 5 minutes."
+          summary: "High CPU usage detected on {{ $labels.instance }}"
+          description: "CPU usage is above 80% for the last 5 minutes on instance {{ $labels.instance }}."
+
+      # Low disk space: Trigger an alert if disk space usage exceeds 90%
+      - alert: LowDiskSpace
+        expr: (node_filesystem_avail_bytes{fstype=~"ext4|xfs"} / node_filesystem_size_bytes{fstype=~"ext4|xfs"}) * 100 < 10
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Disk space is below 10% available on instance {{ $labels.instance }}."
+
+      # Host unreachable: Trigger an alert if the host is unreachable
+      - alert: HostUnreachable
+        expr: up{job="node_exporter"} == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Host unreachable: {{ $labels.instance }}"
+          description: "Instance {{ $labels.instance }} is unreachable for the last 5 minutes."
