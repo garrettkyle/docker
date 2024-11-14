@@ -55,7 +55,7 @@ services:
       - monitoring
 
   thanos_sidecar:
-    image: 715788907281.dkr.ecr.ca-central-1.amazonaws.com/monitoring/thanos_sidecar:1.0
+    image: 715788907281.dkr.ecr.ca-central-1.amazonaws.com/monitoring/thanos:1.0
     container_name: thanos_sidecar
     volumes:
       - prometheus_data:/prometheus
@@ -65,7 +65,31 @@ services:
       - '--objstore.config-file=/etc/thanos/storage.yaml'
       - '--tsdb.path=/prometheus'
       - '--prometheus.url=http://prometheus:9090'
+      - '--grpc-address=0.0.0.0:10902'
+      - '--http-address=0.0.0.0:10901'
     ports:
+      - 10901:10901
       - 10902:10902
     networks:
       - monitoring
+    depends_on:
+      - prometheus
+
+  thanos_query:
+    image: 715788907281.dkr.ecr.ca-central-1.amazonaws.com/monitoring/thanos:1.0
+    container_name: thanos_query
+    volumes:
+      - prometheus_data:/prometheus
+    command:
+      - 'thanos'
+      - 'query'
+      - '--http-address=0.0.0.0:9091'
+      - '--grpc-address=0.0.0.0:9092'
+      - '--endpoint=thanos_sidecar:10902'
+    ports:
+      - 9091:9091
+      - 9092:9092
+    networks:
+      - monitoring
+    depends_on:
+      - thanos_sidecar
